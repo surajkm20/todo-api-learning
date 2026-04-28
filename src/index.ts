@@ -4,6 +4,7 @@ import { db } from './db/client';
 import { users } from './db/schema/users';
 const app = express();
 app.use(express.json());
+
 const PORT = 3000;
 
 import authRouter from './routes/auth';
