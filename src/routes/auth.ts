@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { db } from '../db/client';
 import { users } from '../db/schema/users';
 import { eq } from 'drizzle-orm';
+import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 
@@ -77,5 +78,25 @@ router.post('/login', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+router.get('/me', requireAuth, async (req: Request, res: Response) => {
+  // This route will be protected by requireAuth middleware, so we can trust req.userId exists
+  const userId = req.userId!;
+  try {
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    console.error('fetching user failed:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}); 
 
 export default router;

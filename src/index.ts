@@ -5,12 +5,13 @@ import { users } from './db/schema/users';
 const app = express();
 app.use(express.json());
 
-const PORT = 3000;
+const PORT = process.env.PORT ?? 3000;
 
 import authRouter from './routes/auth';
 app.use('/auth', authRouter);
 
-
+import todosRouter from './routes/todos';
+app.use('/todos', todosRouter);
 
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok' });
